@@ -9,7 +9,7 @@ let db = sqlite3.Database('./db/mainDatabase.db', (err) => {
     console.log('database created')
 })
 
-db.run('CREATE TABLE records(id INTEGER PRIMARY KEY ,username TEXT,grade INTEGER,sura INTEGER,start INTEGER, end INTEGER,date INTEGER)', (err) => {
+db.run('CREATE TABLE records(id INTEGER PRIMARY KEY ,username TEXT,grade INTEGER,sura INTEGER,start INTEGER, end INTEGER,date TEXT)', (err) => {
     if (err)
         return console.log(err.message)
     console.log('records table created successfully')
@@ -55,7 +55,7 @@ app.post('/login', (req, res) => {
 app.post('/records', (req, res) => {
 
     data = req.body
-    db.all(`SELECT * FROM records WHERE username = ${data.username} AND date > ${data.start} AND date < ${data.end} ORDER BY date ASC`, (rows) => {
+    db.all(`SELECT * FROM records WHERE username = ${data.username} AND date > ${data.start} AND date < ${data.end} ORDER BY date(date) ASC`, (rows) => {
         if (err) console.log(err)
         res.send(rows)
     })
@@ -80,7 +80,9 @@ app.post('/records/add', function (req, res) {
 app.post('/records/edit', function (req, res) {
     data = req.body
     db.run(`UPDATE records SET username = ${data.username},grade = ${data.grade},sura = ${data.sura},start = ${data.start},end = ${data.end},date = ${data.date} WHERE id = ${data.id}`,(row)=>{
-        res.send(row)
+        db.get(`SELECT * FROM records WHERE id = ${req.body.id}`,(row)=>{
+            res.send(row)
+        })
     })
 })
 
